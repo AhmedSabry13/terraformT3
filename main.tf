@@ -1,6 +1,6 @@
 provider "aws" {
   region  = "eu-west-1"
-  profile = "my_profile"
+  
 }
 
 resource "aws_security_group" "web_sg" {
