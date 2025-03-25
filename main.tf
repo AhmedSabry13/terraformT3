@@ -33,24 +33,20 @@ data "aws_region" "current" {}
 # Fetch the first available availability zone in the region
 data "aws_availability_zones" "available" {}
 
+resource "aws_instance" "apache_ec2" {
+  ami                    = var.ami_image  # Replace with an appropriate AMI ID for your region
+  instance_type          = "t2.micro"     # Adjust instance type as needed
+  key_name               = "sab"          # Replace with your key pair name
+  associate_public_ip_address = true      # Public IP
+  vpc_security_group_ids = [aws_security_group.web_sg.id]  # Corrected security group reference
+  availability_zone      = data.aws_availability_zones.available.names[0]
 
+  user_data = var.user_data_apache
 
-# Use vpc module
-module "vpc" {
-  source            = "./modules/vpc"
-  availability_zone = "eu-west-1a"
-
-}
-
-# Use subnet module
-module "subnets" {
-  source            = "./modules/subnet"
-  vpc_id_sub             = module.vpc.vpc_id  
-}
-
-
-module "eks" {
-  source            = "./modules/eks"
-  subnet_ids = module.subnets.subnet_ids  
-  vpc_id_eks = module.vpc.vpc_id  
+  tags = {
+    Name      = "demo_sabry_2"
+    Terraform = "true"
+    az = data.aws_availability_zones.available.names[0]
+    region = data.aws_region.current.name
+  }
 }
